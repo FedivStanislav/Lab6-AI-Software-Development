@@ -3,15 +3,20 @@ name: AI Software Development CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   python-ci:
     name: Python Tests and ML Validation
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     defaults:
       run:
@@ -24,7 +29,16 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
+
+      - name: Verify project files
+        run: |
+          python --version
+          ls -la
+          test -f main.py
+          test -f test_main.py
+          test -f ml_risk_prediction.py
+          test -f requirements.txt
 
       - name: Install dependencies
         run: |
@@ -37,11 +51,15 @@ jobs:
 
       - name: Check code coverage
         run: |
-          python -m pytest test_main.py --cov=main --cov-report=term-missing --cov-fail-under=80
+          python -m pytest test_main.py \
+            --cov=main \
+            --cov-report=term-missing \
+            --cov-fail-under=80
 
       - name: Run ML risk prediction
         run: |
           python ml_risk_prediction.py
 
       - name: CI completed
-        run: echo "All CI checks completed successfully"
+        run: |
+          echo "All CI checks completed successfully"
