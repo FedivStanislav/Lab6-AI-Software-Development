@@ -1,0 +1,47 @@
+
+name: AI Software Development CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  python-ci:
+    name: Python Tests and ML Validation
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Lab6_AI_Software_Development
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+
+      - name: Run automated tests
+        run: |
+          python -m pytest test_main.py -v
+
+      - name: Check code coverage
+        run: |
+          python -m pytest test_main.py --cov=main --cov-report=term-missing --cov-fail-under=80
+
+      - name: Run ML risk prediction
+        run: |
+          python ml_risk_prediction.py
+
+      - name: CI completed
+        run: echo "All CI checks completed successfully"
